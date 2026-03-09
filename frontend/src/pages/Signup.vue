@@ -47,8 +47,7 @@
 
 <script>
 import axios from "axios";
-import { default as jwtDecode } from "jwt-decode"; 
-import { API_URL } from "@/config.js"; // ✅ centralized backend URL
+import { default as jwtDecode } from "jwt-decode"; // ✅ Vite-compatible
 
 export default {
   data() {
@@ -68,7 +67,7 @@ export default {
       }
 
       try {
-        const res = await axios.post(`${API_URL}/api/auth/signup`, { // ✅ use env variable
+        const res = await axios.post("https://leave-management-system-1-l7gl.onrender.com/api/auth/signup", {
           name: this.name,
           email: this.email,
           password: this.password,
