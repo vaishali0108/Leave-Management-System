@@ -47,7 +47,8 @@
 
 <script>
 import axios from "axios";
-import { default as jwtDecode } from "jwt-decode"; // ✅ Vite-compatible
+import { default as jwtDecode } from "jwt-decode"; 
+import { API_URL } from "@/config.js"; // ✅ centralized backend URL
 
 export default {
   data() {
@@ -67,7 +68,7 @@ export default {
       }
 
       try {
-        const res = await axios.post("http://localhost:5000/api/auth/signup", {
+        const res = await axios.post(`${API_URL}/api/auth/signup`, { // ✅ use env variable
           name: this.name,
           email: this.email,
           password: this.password,
