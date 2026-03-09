@@ -46,7 +46,6 @@
 
 <script>
 import axios from "axios";
-import { API_URL } from "@/config.js"; // ✅ centralized API URL
 
 export default {
   data() {
@@ -56,37 +55,38 @@ export default {
   },
 
   async mounted() {
-    this.fetchLeaves();
+    const token = localStorage.getItem("token"); // JWT token
+
+    if (!token) {
+      alert("You are not logged in");
+      this.$router.push("/"); // Redirect to login
+      return;
+    }
+
+    try {
+      const res = await axios.get("https://leave-management-system-1-l7gl.onrender.com/api/leave/all-leaves", {
+        headers: { Authorization: `Bearer ${token}` } // ✅ Send token
+      });
+
+      this.leaves = res.data;
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Error loading leave requests");
+    }
   },
 
   methods: {
-    async fetchLeaves() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You are not logged in");
-        this.$router.push("/");
-        return;
-      }
-
-      try {
-        const res = await axios.get(`${API_URL}/api/leave/all-leaves`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.leaves = res.data;
-      } catch (err) {
-        console.error(err);
-        alert(err.response?.data?.message || "Error loading leave requests");
-      }
-    },
-
     async approve(id) {
       const token = localStorage.getItem("token");
+
       try {
-        await axios.put(`${API_URL}/api/leave/approve/${id}`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.put(
+          `https://leave-management-system-1-l7gl.onrender.com/api/leave/approve/${id}`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } } // ✅ Send token
+        );
         alert("Leave Approved");
-        this.fetchLeaves();
+        this.fetchLeaves(); // Reload leaves without full page reload
       } catch (err) {
         console.error(err);
         alert(err.response?.data?.message || "Error approving leave");
@@ -95,15 +95,30 @@ export default {
 
     async reject(id) {
       const token = localStorage.getItem("token");
+
       try {
-        await axios.put(`${API_URL}/api/leave/reject/${id}`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.put(
+          `https://leave-management-system-1-l7gl.onrender.com/api/leave/reject/${id}`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } } // ✅ Send token
+        );
         alert("Leave Rejected");
         this.fetchLeaves();
       } catch (err) {
         console.error(err);
         alert(err.response?.data?.message || "Error rejecting leave");
+      }
+    },
+
+    async fetchLeaves() {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await axios.get("https://leave-management-system-1-l7gl.onrender.com/api/leave/all-leaves", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.leaves = res.data;
+      } catch (err) {
+        console.error(err);
       }
     }
   }
